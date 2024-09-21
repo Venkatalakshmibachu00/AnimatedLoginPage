@@ -1,0 +1,193 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <!-- Bootstrap CSS CDN for styling -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Style for toast notification position and form field error state */
+        .toast {
+            position: absolute;
+            min-width: 250px;
+        }
+        .error {
+            border-color: red;
+        }
+        /* Galaxy background and animation */
+        body {
+            background: #000;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1; /* Ensure stars are behind the login form */
+            background: transparent;
+        }
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+        }
+        .animation {
+            animation: animateStars 50s linear infinite;
+        }
+        @keyframes animateStars {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(-2000px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <h2 class="text-center text-primary">Login</h2>
+                <!-- Login form -->
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username" class="text-white">Username:</label>
+                        <input type="text" class="form-control" id="username" placeholder="Enter username">
+                    </div>
+                    <div class="form-group">
+                        <label for="pwd" class="text-white">Password:</label>
+                        <input type="password" class="form-control" id="pwd" placeholder="Enter password">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container for toast notifications -->
+    <div id="toastContainer"></div>
+
+    <!-- jQuery CDN for DOM manipulation -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Popper.js CDN for Bootstrap tooltip and popover positioning -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <!-- Bootstrap JS CDN for responsive components and modals -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Ensure the DOM is fully loaded before executing jQuery code
+        $(document).ready(function() {
+            // Create stars and start animation loop
+            function createStars() {
+                $(".stars").empty(); // Clear existing stars
+                for (let i = 0; i < 100; i++) {
+                    let star = $('<div class="star"></div>');
+                    let top = Math.random() * window.innerHeight;
+                    let left = Math.random() * window.innerWidth;
+                    star.css({
+                        top: top + "px",
+                        left: left + "px"
+                    });
+                    $(".stars").append(star);
+                }
+                $(".stars").addClass("animation");
+            }
+
+            // Initially create stars
+            createStars();
+
+            // Continually create stars every 50 seconds
+            setInterval(createStars, 50000);
+
+            // Handle form submission
+            $("#loginForm").submit(function(event) {
+                // Prevent the default form submission behavior
+                event.preventDefault();
+                // Get the trimmed values of username and password fields
+                let username = $("#username").val().trim();
+                let password = $("#pwd").val().trim();
+                let isValid = true;
+
+                // Reset error states
+                $("#username").removeClass("error");
+                $("#pwd").removeClass("error");
+
+                // Validate fields
+                if (!username && !password) {
+                    // If both fields are empty, show error message and highlight both fields
+                    showToast("Username and Password are mandatory");
+                    $("#username").addClass("error");
+                    $("#pwd").addClass("error");
+                    isValid = false;
+                } 
+                else if (!username) {
+                    // If username is empty, show error message and highlight username field
+                    showToast('Username is mandatory');
+                    $("#username").addClass("error");
+                    isValid = false;
+                } 
+                else if (!password) {
+                    // If password is empty, show error message and highlight password field
+                    showToast("Password is mandatory");
+                    $("#pwd").addClass("error");
+                    isValid = false;
+                }
+
+                // If all fields are valid, check credentials
+                if (isValid) {
+                    if (username === "Google" && password === "Google password") {
+                        // If credentials are correct, show success message and redirect after 2 seconds
+                        showToast("Welcome to the login page!", "success", true);
+                        setTimeout(function() {
+                            window.location.href = "https://www.google.com";
+                        }, 2000);
+                    } 
+                    else {
+                        // If credentials are incorrect, show error message
+                        showToast("User not found");
+                    }
+                }
+            });
+
+            // Function to show toast notification
+            function showToast(message, type = 'danger', isSuccess = false) {
+                // Create toast HTML structure
+                var toastHTML = `
+                    <div class="toast" data-delay="2000">
+                        <div class="toast-header ${isSuccess ? 'bg-success' : 'bg-' + type} text-white">
+                            <strong class="mr-auto">Notification</strong>
+                            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">&times;</button>
+                        </div>
+                        <div class="toast-body">${message}</div>
+                    </div>
+                `;
+                
+                // Calculate the position of the submit button
+                let buttonOffset = $('button[type="submit"]').offset();
+                let toastTop = buttonOffset.top + $('button[type="submit"]').outerHeight() + 2;
+                let toastLeft = buttonOffset.left;
+
+                // Set the position of the toast
+                $("#toastContainer").html(toastHTML);
+                $(".toast").css({
+                    top: toastTop,
+                    left: toastLeft
+                });
+                
+                // Show the toast notification
+                $(".toast").toast("show");
+            }
+        });
+    </script>
+</body>
+</html>
