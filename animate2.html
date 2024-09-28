@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
-    <!-- Bootstrap CSS CDN for styling -->
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         /* Style for toast notification position and form field error state */
         .toast {
             position: absolute;
             min-width: 250px;
+            text-align: center;
         }
         .error {
             border-color: red;
@@ -22,16 +22,13 @@
             overflow: hidden;
             margin: 0;
             padding: 0;
-            position: relative;
         }
         .stars {
-            position: fixed;
+            position: absolute;
             width: 100%;
             height: 100%;
-            top: 0;
-            left: 0;
-            z-index: -1; /* Ensure stars are behind the login form */
             background: transparent;
+            z-index: -1; 
         }
         .star {
             position: absolute;
@@ -54,11 +51,10 @@
     </style>
 </head>
 <body>
-    <div class="stars"></div>
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-4">
-                <h2 class="text-center text-primary">Login</h2>
+                <h2 class="text-primary text-center">Login</h2>
                 <!-- Login form -->
                 <form id="loginForm">
                     <div class="form-group">
@@ -78,91 +74,70 @@
     <!-- Container for toast notifications -->
     <div id="toastContainer"></div>
 
-    <!-- jQuery CDN for DOM manipulation -->
+    <!-- Star animations -->
+    <div class="stars"></div>
+
+    <!-- jQuery CDN for DOM manipulation (links included as requested) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <!-- Popper.js CDN for Bootstrap tooltip and popover positioning -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <!-- Bootstrap JS CDN for responsive components and modals -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-        // Ensure the DOM is fully loaded before executing jQuery code
-        $(document).ready(function() {
-            // Create stars and start animation loop
-            function createStars() {
-                $(".stars").empty(); // Clear existing stars
-                for (let i = 0; i < 100; i++) {
-                    let star = $('<div class="star"></div>');
-                    let top = Math.random() * window.innerHeight;
-                    let left = Math.random() * window.innerWidth;
-                    star.css({
-                        top: top + "px",
-                        left: left + "px"
-                    });
-                    $(".stars").append(star);
-                }
-                $(".stars").addClass("animation");
+        // Wait for the document to fully load
+        document.addEventListener("DOMContentLoaded", function() {
+            // Create stars and append to body for animation
+            for (let i = 0; i < 100; i++) {
+                let star = document.createElement('div');
+                star.classList.add('star');
+                star.style.top = Math.random() * window.innerHeight + 'px';
+                star.style.left = Math.random() * window.innerWidth + 'px';
+                document.querySelector('.stars').appendChild(star);
             }
+            document.querySelector('.stars').classList.add('animation'); // Add animation class to stars
 
-            // Initially create stars
-            createStars();
+            // Form submission handling
+            document.getElementById('loginForm').addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent form from submitting normally
 
-            // Continually create stars every 50 seconds
-            setInterval(createStars, 50000);
-
-            // Handle form submission
-            $("#loginForm").submit(function(event) {
-                // Prevent the default form submission behavior
-                event.preventDefault();
-                // Get the trimmed values of username and password fields
-                let username = $("#username").val().trim();
-                let password = $("#pwd").val().trim();
+                let username = document.getElementById('username').value.trim();
+                let password = document.getElementById('pwd').value.trim();
                 let isValid = true;
 
-                // Reset error states
-                $("#username").removeClass("error");
-                $("#pwd").removeClass("error");
+                // Reset any previous error styles
+                document.getElementById('username').classList.remove('error');
+                document.getElementById('pwd').classList.remove('error');
 
-                // Validate fields
+                // Validation logic
                 if (!username && !password) {
-                    // If both fields are empty, show error message and highlight both fields
-                    showToast("Username and Password are mandatory");
-                    $("#username").addClass("error");
-                    $("#pwd").addClass("error");
+                    showToast('Username and Password are mandatory');
+                    document.getElementById('username').classList.add('error');
+                    document.getElementById('pwd').classList.add('error');
                     isValid = false;
-                } 
-                else if (!username) {
-                    // If username is empty, show error message and highlight username field
+                } else if (!username) {
                     showToast('Username is mandatory');
-                    $("#username").addClass("error");
+                    document.getElementById('username').classList.add('error');
                     isValid = false;
-                } 
-                else if (!password) {
-                    // If password is empty, show error message and highlight password field
-                    showToast("Password is mandatory");
-                    $("#pwd").addClass("error");
+                } else if (!password) {
+                    showToast('Password is mandatory');
+                    document.getElementById('pwd').classList.add('error');
                     isValid = false;
                 }
 
-                // If all fields are valid, check credentials
+                // If valid, check credentials
                 if (isValid) {
-                    if (username === "Google" && password === "Google password") {
-                        // If credentials are correct, show success message and redirect after 2 seconds
-                        showToast("Welcome to the login page!", "success", true);
+                    if (username === 'Google' && password === 'Google password') {
+                        showToast('Welcome to the login page!', 'success', true);
                         setTimeout(function() {
-                            window.location.href = "https://www.google.com";
-                        }, 2000);
-                    } 
-                    else {
-                        // If credentials are incorrect, show error message
-                        showToast("User not found");
+                            window.location.href = 'https://www.google.com';
+                        }, 2000); // Redirect after 2 seconds
+                    } else {
+                        showToast('User not found');
                     }
                 }
             });
 
-            // Function to show toast notification
+            // Function to show toast notifications
             function showToast(message, type = 'danger', isSuccess = false) {
-                // Create toast HTML structure
-                var toastHTML = `
+                let toastHTML = `
                     <div class="toast" data-delay="2000">
                         <div class="toast-header ${isSuccess ? 'bg-success' : 'bg-' + type} text-white">
                             <strong class="mr-auto">Notification</strong>
@@ -171,21 +146,21 @@
                         <div class="toast-body">${message}</div>
                     </div>
                 `;
-                
-                // Calculate the position of the submit button
+
+                // Position toast below the submit button
                 let buttonOffset = $('button[type="submit"]').offset();
-                let toastTop = buttonOffset.top + $('button[type="submit"]').outerHeight() + 2;
+                let toastTop = buttonOffset.top + $('button[type="submit"]').outerHeight() + 20;
                 let toastLeft = buttonOffset.left;
 
-                // Set the position of the toast
-                $("#toastContainer").html(toastHTML);
-                $(".toast").css({
-                    top: toastTop,
-                    left: toastLeft
-                });
-                
-                // Show the toast notification
-                $(".toast").toast("show");
+                // Insert toast into container
+                document.getElementById('toastContainer').innerHTML = toastHTML;
+                let toast = document.querySelector('.toast');
+                toast.style.position = 'absolute';
+                toast.style.top = toastTop + 'px';
+                toast.style.left = toastLeft + 'px';
+
+                // Show toast
+                $(toast).toast('show');
             }
         });
     </script>
